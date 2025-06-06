@@ -11,9 +11,13 @@ import EducationPage from './pages/EducationPage';
 import EmergencyPage from './pages/EmergencyPage';
 import DashboardPage from './pages/DashboardPage';
 import { LanguageProvider } from './context/LanguageContext';
+import PrivateRoute from './routes/PrivateRoute';
+import PublicRoute from './routes/PublicRoute';
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  // This will be replaced with actual auth logic later
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
@@ -26,13 +30,24 @@ function App() {
         <Navbar toggleDarkMode={toggleDarkMode} isDarkMode={isDarkMode} />
         <main className="flex-grow">
           <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/register" element={<DonorRegistrationPage />} />
-            <Route path="/request" element={<RequestBloodPage />} />
-            <Route path="/find" element={<FindDonorsPage />} />
-            <Route path="/education" element={<EducationPage />} />
-            <Route path="/emergency" element={<EmergencyPage />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
+            {/* Public Routes */}
+            <Route element={<PublicRoute isAuthenticated={isAuthenticated} />}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/education" element={<EducationPage />} />
+              <Route path="/emergency" element={<EmergencyPage />} />
+            </Route>
+
+            {/* Restricted Public Routes (redirect if authenticated) */}
+            <Route element={<PublicRoute isAuthenticated={isAuthenticated} restricted={true} />}>
+              <Route path="/register" element={<DonorRegistrationPage />} />
+            </Route>
+
+            {/* Private Routes */}
+            <Route element={<PrivateRoute isAuthenticated={isAuthenticated} />}>
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/request" element={<RequestBloodPage />} />
+              <Route path="/find" element={<FindDonorsPage />} />
+            </Route>
           </Routes>
         </main>
         <div className="fixed bottom-4 right-4 z-50">
